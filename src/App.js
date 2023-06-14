@@ -26,14 +26,23 @@ export default function App() {
     );
   }
 
+  function handleClearItems() {
+    const confirmed = window.confirm(
+      "Are you shure you want to delete all items?"
+    );
+
+    if (confirmed) setItems(() => []);
+  }
+
   return (
     <div className="app">
       <Logo />
       <Form onAddItems={handleAddItems} />
       <PackageList
+        items={items}
         onUpdateItems={handleUpdateItems}
         onDeleteItems={handleDeleteItems}
-        items={items}
+        onClearItems={handleClearItems}
       />
       <Stats items={items} />
     </div>
@@ -41,7 +50,7 @@ export default function App() {
 }
 
 function Logo() {
-  return <h1>🌴 Far Away 💼</h1>;
+  return <h1>🌴 Far Away 🎒</h1>;
 }
 
 function Form({ onAddItems }) {
@@ -83,7 +92,7 @@ function Form({ onAddItems }) {
   );
 }
 
-function PackageList({ items, onDeleteItems, onUpdateItems }) {
+function PackageList({ items, onDeleteItems, onUpdateItems, onClearItems }) {
   const [sortBy, setSortBy] = useState("input");
   let sortedItems;
 
@@ -116,6 +125,7 @@ function PackageList({ items, onDeleteItems, onUpdateItems }) {
           <option value="packed">Sort by packed status</option>
         </select>
       </div>
+      <button onClick={onClearItems}>Clear list</button>
     </div>
   );
 }
@@ -153,7 +163,7 @@ function Stats({ items }) {
       <em>
         {numItems === numPacked
           ? "You got everything! Ready to go ✈"
-          : `You have ${numItems} items on your list, and you have already packed
+          : `💼 You have ${numItems} items on your list, and you have already packed
             ${numPacked} (${percentage}%)`}
       </em>
     </footer>
