@@ -7,11 +7,34 @@ const initialItems = [
 ];
 
 export default function App() {
+  const [items, setItems] = useState(initialItems);
+
+  function handleAddItems(item) {
+    // Spread operator where used here to achieve immutability by mutating elements in the original array
+    setItems((currentItems) => [...currentItems, item]);
+  }
+
+  function handleDeleteItems(itemId) {
+    setItems((currentItems) => currentItems.filter((i) => itemId !== i.id));
+  }
+
+  function handleUpdateItems(itemId) {
+    setItems((currentItems) =>
+      currentItems.map((i) =>
+        i.id === itemId ? { ...i, packed: !i.packed } : i
+      )
+    );
+  }
+
   return (
     <div className="app">
       <Logo />
-      <Form />
-      <PackageList />
+      <Form onAddItems={handleAddItems} />
+      <PackageList
+        onUpdateItems={handleUpdateItems}
+        onDeleteItems={handleDeleteItems}
+        items={items}
+      />
       <Stats />
     </div>
   );
@@ -21,7 +44,7 @@ function Logo() {
   return <h1>🌴 Far Away 💼</h1>;
 }
 
-function Form() {
+function Form({ onAddItems }) {
   const [description, setDescription] = useState("");
   const [quantity, setQuantity] = useState(1);
 
@@ -31,7 +54,7 @@ function Form() {
     if (!description) return;
 
     const newItem = { description, quantity, packed: false, id: Date.now() };
-    console.log(newItem);
+    onAddItems(newItem);
 
     setDescription("");
     setQuantity(1);
@@ -60,25 +83,35 @@ function Form() {
   );
 }
 
-function PackageList() {
+function PackageList({ items, onDeleteItems, onUpdateItems }) {
   return (
     <div className="list">
       <ul>
-        {initialItems.map((item) => (
-          <Item item={item} key={item.id} />
+        {items.map((item) => (
+          <Item
+            item={item}
+            key={item.id}
+            onUpdateItems={onUpdateItems}
+            onDeleteItems={onDeleteItems}
+          />
         ))}
       </ul>
     </div>
   );
 }
 
-function Item({ item }) {
+function Item({ item, onDeleteItems, onUpdateItems }) {
   return (
     <li>
+      <input
+        type="checkbox"
+        onChange={(e) => onUpdateItems(item.id)}
+        checked={item.packed}
+      />
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
         {item.quantity} {item.description}
       </span>
-      <button>❌</button>
+      <button onClick={() => onDeleteItems(item.id)}>❌</button>
     </li>
   );
 }
